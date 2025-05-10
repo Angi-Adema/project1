@@ -1,4 +1,4 @@
-package com.project1.Util;
+package Util;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

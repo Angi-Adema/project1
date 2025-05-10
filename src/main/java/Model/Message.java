@@ -1,4 +1,4 @@
-package com.project1.Model;
+package Model;
 
 /**
  * This is a class that models a Message.

@@ -1,4 +1,4 @@
-package com.project1.Controller;
+package Controller;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
