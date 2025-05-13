@@ -44,10 +44,10 @@ public class SocialMediaController {
         Account acct = ctx.bodyAsClass(Account.class);
 
         if(acct.getUsername() == null || acct.getUsername().isBlank() || acct.getPassword() == null || acct.getPassword().length() < 4) {
-            ctx.status(400);
+            ctx.status(400).result("Username cannot be blank and password must be at least 4 characters");
             return;
         }
-
+        // The following code is commented out because it is not implemented yet. You will need to implement the register method in the AccountService class.
         try {
             Account newAcct = accountService.register(acct);
             if (newAcct != null) {
@@ -62,6 +62,7 @@ public class SocialMediaController {
         }
 
     }
+    
 
     private void loginHandler(Context ctx) {
 
@@ -85,6 +86,7 @@ public class SocialMediaController {
             e.printStackTrace();
         }
     }
-
-
 }
+
+
+
