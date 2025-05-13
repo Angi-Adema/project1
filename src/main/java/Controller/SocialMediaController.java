@@ -1,7 +1,9 @@
 package Controller;
 
 import Model.Account;
+import Model.Message;
 import Service.AccountService;
+import Service.MessageService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -12,9 +14,11 @@ import io.javalin.http.Context;
  */
 public class SocialMediaController {
     AccountService accountService;
+    MessageService messageService;
 
     public SocialMediaController() {
         this.accountService = new AccountService();
+        this.messageService = new MessageService();
     }
 
     /**
@@ -26,6 +30,10 @@ public class SocialMediaController {
         Javalin app = Javalin.create();
         app.post("/register", this::registerHandler);
         app.post("/login", this::loginHandler);
+        app.post("/messages", this::messageHandler);
+        app.get("/messages", this::getAllMessagesHandler);
+        app.get("/messages/{message_id}", this::getMessageByIdHandler);
+        app.delete("/messages/{message_id}", this::deleteMessageHandler);
 
         return app;
     }
@@ -59,7 +67,6 @@ public class SocialMediaController {
 
     }
     
-
     private void loginHandler(Context ctx) {
 
         Account loginAttempt = ctx.bodyAsClass(Account.class);
@@ -80,6 +87,60 @@ public class SocialMediaController {
         } catch (Exception e) {
             ctx.status(500).result("Server error: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void messageHandler(Context ctx) {
+
+        Message message = ctx.bodyAsClass(Message.class);
+
+        if(message.getMessage_text() == null || message.getMessage_text().isBlank() || message.getMessage_text().length() > 255 || message.getPosted_by() <= 0) {
+            ctx.status(400).result("Message cannot be blank and must be less than 255 characters");
+            return;
+        }
+        Message created = messageService.createMessage(message);
+        
+        if(created != null) {
+            ctx.json(created);
+        } else {
+            ctx.status(400).result("Message could not be created");
+        }
+    }
+
+    private void getAllMessagesHandler(Context ctx) {
+        ctx.json(messageService.getAllMessages());
+    }
+
+    private void getMessageByIdHandler(Context ctx) {
+        try {
+            int messageId = Integer.parseInt(ctx.pathParam("message_id"));
+            Message message = messageService.getMessageById(messageId);
+
+            if(message != null) {
+                ctx.json(message);
+            } else {
+                ctx.json(" ").result("Message not found");
+            }
+        } catch (NumberFormatException e) {
+            ctx.status(400).result("Invalid message ID format");
+        } catch (Exception e) {
+            ctx.status(500).result("Server error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteMessageHandler(Context ctx) {
+        try {
+            int messageId = Integer.parseInt(ctx.pathParam("message_id"));
+            Message deleted = messageService.deleteMessageById(messageId);
+
+            if(deleted != null) {
+                ctx.json(deleted);
+            } else {
+                ctx.json(" ").result("Message not found");
+            }
+        } catch (NumberFormatException e) {
+            ctx.status(400).result("Invalid message ID format"); 
         }
     }
 }

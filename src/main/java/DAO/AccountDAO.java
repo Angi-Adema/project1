@@ -92,4 +92,29 @@ public class AccountDAO implements AccountDAOInterface {
         }
         return account;
     }
+
+    public Account getAccountById(int id) {
+        Connection connection = ConnectionUtil.getConnection();
+        Account account = null;
+
+        try {
+            String sql = "SELECT * FROM account WHERE account_id = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            if(rs.next()) {
+                account = new Account(
+                    rs.getInt("account_id"),
+                    rs.getString("username"),
+                    rs.getString("password")
+                );
+            }
+            rs.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return account;
+    }
 }
