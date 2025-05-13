@@ -1,10 +1,6 @@
 package Controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import Model.Account;
-import Model.Message;
 import Service.AccountService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;

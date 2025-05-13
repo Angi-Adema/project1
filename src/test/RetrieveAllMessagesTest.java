@@ -1,4 +1,4 @@
-package com.project1;
+package test;
 
 import java.io.IOException;
 import java.net.URI;
