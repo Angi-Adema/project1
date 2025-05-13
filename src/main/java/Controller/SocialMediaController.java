@@ -34,6 +34,7 @@ public class SocialMediaController {
         app.get("/messages", this::getAllMessagesHandler);
         app.get("/messages/{message_id}", this::getMessageByIdHandler);
         app.delete("/messages/{message_id}", this::deleteMessageHandler);
+        app.patch("/messages/{message_id}", this::updateMessageHandler);
 
         return app;
     }
@@ -141,6 +142,27 @@ public class SocialMediaController {
             }
         } catch (NumberFormatException e) {
             ctx.status(400).result("Invalid message ID format"); 
+        }
+    }
+
+    private void updateMessageHandler(Context ctx) {
+        try {
+            int messageId = Integer.parseInt(ctx.pathParam("message_id"));
+            Message updateRequest = ctx.bodyAsClass(Message.class);
+
+            if(updateRequest.getMessage_text() == null || updateRequest.getMessage_text().isBlank() || updateRequest.getMessage_text().length() >= 255) {
+                ctx.status(400).result("Message cannot be blank and must be less than 255 characters");
+                return;
+            }
+            Message updatedMessage = messageService.updateMessageText(messageId, updateRequest.getMessage_text());
+
+            if(updatedMessage != null) {
+                ctx.json(updatedMessage);
+            } else {
+                ctx.status(400);
+            }
+        } catch (NumberFormatException e) {
+            ctx.status(400).result("Invalid message ID format");
         }
     }
 }

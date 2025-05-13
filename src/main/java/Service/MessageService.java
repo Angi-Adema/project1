@@ -32,5 +32,16 @@ public class MessageService {
     public Message deleteMessageById(int messageId) {
         return messageDAO.deleteMessageById(messageId);
     }
+
+    public Message updateMessageText(int messageId, String newText) {
+        Message existing = messageDAO.getMessageById(messageId);
+
+        if(existing == null) {
+            return null;
+        }
+
+        existing.setMessage_text(newText);
+        return messageDAO.updateMessage(existing);
+    }
     
 }
