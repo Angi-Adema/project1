@@ -38,9 +38,11 @@ public class MessageDAO {
 
     public List<Message> getAllMessages() {
         List<Message> messages = new ArrayList<>();
-        Connection connection = ConnectionUtil.getConnection();
+        //Connection connection = ConnectionUtil.getConnection();
 
         try {
+            Connection connection = DriverManager.getConnection("jdbc:h2:./h2/db;", "sa", "sa");
+
             String sql = "SELECT * FROM message";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet rs = preparedStatement.executeQuery();
@@ -56,6 +58,7 @@ public class MessageDAO {
             }
             rs.close();
             preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

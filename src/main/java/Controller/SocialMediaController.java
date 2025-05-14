@@ -50,7 +50,7 @@ public class SocialMediaController {
         Account acct = ctx.bodyAsClass(Account.class);
 
         if(acct.getUsername() == null || acct.getUsername().isBlank() || acct.getPassword() == null || acct.getPassword().length() < 4) {
-            ctx.status(400).result("Username cannot be blank and password must be at least 4 characters");
+            ctx.status(400);    
             return;
         }
         // The following code is commented out because it is not implemented yet. You will need to implement the register method in the AccountService class.
@@ -60,7 +60,7 @@ public class SocialMediaController {
                 // Javalin will automatically return the response as 200 OK as the default along with the JSON object.
                 ctx.status(200).json(newAcct);
             } else {
-                ctx.status(400).result("Account already exists");
+                ctx.status(400);   
             }
         } catch (Exception e) {
             ctx.status(500).result("Server error: " + e.getMessage());
@@ -84,7 +84,7 @@ public class SocialMediaController {
             if(existingAccount != null) {
                 ctx.status(200).json(existingAccount);
             } else {
-                ctx.status(401).result("Invalid username or password");
+                ctx.status(401);
             }
         } catch (Exception e) {
             ctx.status(500).result("Server error: " + e.getMessage());
@@ -97,7 +97,7 @@ public class SocialMediaController {
         Message message = ctx.bodyAsClass(Message.class);
 
         if(message.getMessage_text() == null || message.getMessage_text().isBlank() || message.getMessage_text().length() > 255 || message.getPosted_by() <= 0) {
-            ctx.status(400).result("Message cannot be blank and must be less than 255 characters");
+            ctx.status(400);
             return;
         }
         Message created = messageService.createMessage(message);
@@ -105,7 +105,7 @@ public class SocialMediaController {
         if(created != null) {
             ctx.json(created);
         } else {
-            ctx.status(400).result("Message could not be created");
+            ctx.status(400);
         }
     }
 
@@ -121,10 +121,10 @@ public class SocialMediaController {
             if(message != null) {
                 ctx.json(message);
             } else {
-                ctx.json(" ").result("Message not found");
+                ctx.status(200);
             }
         } catch (NumberFormatException e) {
-            ctx.status(400).result("Invalid message ID format");
+            ctx.status(400);
         } catch (Exception e) {
             ctx.status(500).result("Server error: " + e.getMessage());
             e.printStackTrace();
@@ -139,10 +139,10 @@ public class SocialMediaController {
             if(deleted != null) {
                 ctx.json(deleted);
             } else {
-                ctx.json(" ").result("Message not found");
+                ctx.status(200);
             }
         } catch (NumberFormatException e) {
-            ctx.status(400).result("Invalid message ID format"); 
+            ctx.status(400); 
         }
     }
 
@@ -152,7 +152,7 @@ public class SocialMediaController {
             Message updateRequest = ctx.bodyAsClass(Message.class);
 
             if(updateRequest.getMessage_text() == null || updateRequest.getMessage_text().isBlank() || updateRequest.getMessage_text().length() >= 255) {
-                ctx.status(400).result("Message cannot be blank and must be less than 255 characters");
+                ctx.status(400);
                 return;
             }
             Message updatedMessage = messageService.updateMessageText(messageId, updateRequest.getMessage_text());
@@ -163,7 +163,7 @@ public class SocialMediaController {
                 ctx.status(400);
             }
         } catch (NumberFormatException e) {
-            ctx.status(400).result("Invalid message ID format");
+            ctx.status(400);
         }
     }
 
@@ -172,7 +172,7 @@ public class SocialMediaController {
             int accountId = Integer.parseInt(ctx.pathParam("account_id"));
             ctx.json(messageService.getMessagesByAccountId(accountId));
         } catch (NumberFormatException e) {
-            ctx.status(400).result("Invalid account ID format");
+            ctx.status(400);     
         }
     }
 }
