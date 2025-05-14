@@ -1,10 +1,13 @@
-package test;
+
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +24,7 @@ import Model.Message;
 import Util.ConnectionUtil;
 import io.javalin.Javalin;
 
-public class RetrieveAllMessagesForUserTest {
+public class RetrieveAllMessagesTest {
     SocialMediaController socialMediaController;
     HttpClient webClient;
     ObjectMapper objectMapper;
@@ -48,17 +51,17 @@ public class RetrieveAllMessagesForUserTest {
         app.stop();
     }
 
-    /**
-     * Sending an http request to GET localhost:8080/accounts/1/messages (messages exist for user) 
+/**
+     * Sending an http request to GET localhost:8080/messages 
      * 
      * Expected Response:
      *  Status Code: 200
-     *  Response Body: JSON representation of a list of messages
+     *  Response Body: JSON represenation of a list of message objects
      */
     @Test
-    public void getAllMessagesFromUserMessageExists() throws IOException, InterruptedException {
+    public void getAllMessagesMessagesAvailable() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/accounts/1/messages"))
+                .uri(URI.create("http://localhost:8080/messages"))
                 .build();
         HttpResponse response = webClient.send(request, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
@@ -71,24 +74,42 @@ public class RetrieveAllMessagesForUserTest {
         Assert.assertEquals(expectedResult, actualResult);
     }
 
+
     /**
-     * Sending an http request to GET localhost:8080/accounts/1/messages (messages does NOT exist for user) 
+     * Sending an http request to GET localhost:8080/messages with no mesages in db
      * 
      * Expected Response:
      *  Status Code: 200
-     *  Response Body:
+     *  Response Body: JSON represenation of an empty list
      */
     @Test
-    public void getAllMessagesFromUserNoMessagesFound() throws IOException, InterruptedException {
+    public void getAllMessagesNoMessages() throws IOException, InterruptedException {
+        
+        removeInitialMessage();
+
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/accounts/2/messages"))
+                .uri(URI.create("http://localhost:8080/messages"))
                 .build();
         HttpResponse response = webClient.send(request, HttpResponse.BodyHandlers.ofString());
         int status = response.statusCode();
 
         Assert.assertEquals(200, status);
 
-        List<Message> actualResult = objectMapper.readValue(response.body().toString(), new TypeReference<List<Message>>(){});
-        Assert.assertTrue(actualResult.isEmpty());
+        List<Message> messages = objectMapper.readValue(response.body().toString(), new TypeReference<List<Message>>(){});
+        Assert.assertTrue(messages.isEmpty());
     }
+
+
+
+    private void removeInitialMessage(){
+        try {
+                Connection conn = ConnectionUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement("delete from message where message_id = ?");
+                ps.setInt(1, 1);
+                ps.executeUpdate();
+        } catch (SQLException e) {
+                e.printStackTrace();
+        }
+    }
+
 }
